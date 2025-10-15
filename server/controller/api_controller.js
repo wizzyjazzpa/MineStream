@@ -35,7 +35,7 @@ const Code = Math.floor(1000 + Math.random() * 9000);
  const verify_code = Code.toString();
 exports.post_signup = async(req, res) =>{
      const subject = "Verify Email";
-     quick_text = " Hello "+req.body.Name+"\n Welcome to CryptoTrust.com. \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes"
+     quick_text = " Hello "+req.body.Name+"\n Welcome to MineStream Investment, \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes"
    if(req.body.Password == req.body.con_password){
 
         const name = req.body.Name;
