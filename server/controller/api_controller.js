@@ -1,6 +1,7 @@
 const Users = require('../models/signup_model');
 const bcrypt = require('bcryptjs');
 const transporter = require('../middleware/sendmail');
+const SendEmail = require('../middleware/send_mailjet');
 const verify_model = require('../models/verificationCode_model');
  const jwt = require('jsonwebtoken');
 const account_model = require('../models/account_model');
@@ -12,7 +13,7 @@ const Admin_model = require('../models/Admin_model');
 const kyc_document_model = require('../models/kyc_document_upload');
 const bank_model = require('../models/bank_model');
 const { json } = require('express');
-const { parse } = require('dotenv');
+require('dotenv');
 
 //post requests
 const sendmail = async function(from,to,subject,text){
@@ -31,6 +32,7 @@ const sendmail = async function(from,to,subject,text){
         console.error(error)
      }
 }
+
 const Code = Math.floor(1000 + Math.random() * 9000);
  const verify_code = Code.toString();
 exports.post_signup = async(req, res) =>{
@@ -58,13 +60,22 @@ exports.post_signup = async(req, res) =>{
 
                 const sendcode = await verify_model.create({code:verify_code,email:email});
                 if(sendcode){
-
-                    const check= sendmail(process.env.EMAIL,email,subject,quick_text);
-                    if(check){
+                    const mailResult = await SendEmail({
+                    fromEmail: process.env.EMAIL, // must be verified in Mailjet
+                    fromName: process.env.SENDER_NAME,
+                    toEmail:email,
+                    toName: name || "",
+                    subject:subject,
+                    text: quick_text,
+                    html: `<p>${quick_text}</p>`,
+                    });        
+                   
+                    if(mailResult.success){
                         //const create_account_balance =await account_model.create(us)
                         res.status(200).json({message:"email has been sent "+email,status:200})
                        
                     }else{
+                        console.log("Could not send mail")
                       res.status(400).json({error:"could not send email"});
                     }
 
