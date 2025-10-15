@@ -1,0 +1,99 @@
+<div class="main">
+   
+    <nav class="navbar navbar-expand navbar-light navbar-bg">
+       
+        <a class="sidebar-toggle js-sidebar-toggle">
+            <i class="hamburger align-self-center"></i>
+        </a>
+         
+        <div class="navbar-collapse collapse">
+            <ul class="navbar-nav navbar-align">
+                <li class="nav-item dropdown">
+                    <a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
+                        <div class="position-relative">
+                            <img id="flag" alt="flag">
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0"
+                        aria-labelledby="alertsDropdown">
+                        <div class="dropdown-menu-header">
+                           User Location Details
+                        </div>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item">
+                                <div class="row g-0 align-items-center">
+                                   
+                                    <div class="col-10">
+                                        <div class="text-dark">City</div>
+                                        <div class="text-muted small mt-1" id="city"></div>
+                                        
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <div class="row g-0 align-items-center">
+                                   <!-- <div class="col-2">
+                                        <i class="text-warning" data-feather="bell"></i>
+                                    </div>-->
+                                    <div class="col-10">
+                                        <div class="text-dark">Region</div>
+                                        <div class="text-muted small mt-1" id="region"></div>
+                                        
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <div class="row g-0 align-items-center">
+                                  <!-- <div class="col-2">
+                                        <i class="text-primary" data-feather="country"></i>
+                                    </div>-->
+                                    <div class="col-10">
+                                        <div class="text-dark">Country</div>
+                                        <div class="text-muted small mt-1" id="country-name"></div>
+                                    </div>
+                                </div>
+                            </a>
+                           
+                        </div>
+                       
+                    </div>
+                </li>
+               
+                <li class="nav-item dropdown">
+                    <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#"
+                        data-bs-toggle="dropdown">
+                        <i class="align-middle" data-feather="settings"></i>
+                    </a>
+
+                    <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#"
+                        data-bs-toggle="dropdown">
+                        <img src="img/avatars/user.png" class="avatar img-fluid rounded me-1"
+                            alt="<%= getuser.name %>" />
+                             <% if (getuser) { %>
+                                <span class="text-dark">
+                                    <%= getuser.name %>
+                                    <input type="hidden" name="userid" id="userid" value="<%=getuser._id %>">
+                                </span>
+                             <% } %>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="/user-profile"><i class="align-middle me-1"
+                                data-feather="user"></i> Profile</a>
+                         <a class="dropdown-item" href="/kyc"><i class="align-middle me-1"
+                            data-feather="key"></i>KYC</a>
+                        <a class="dropdown-item" href="/changepassword"><i class="align-middle me-1"
+                                data-feather="lock"></i>Change Password</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/logout">Log out</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+       
+        <input type="hidden" id="phone_number" value="<%= getuser.phone_number %>">
+        <input type="hidden" id="country" value="<%= getuser.country %>">
+        <input type="hidden" id="state" value="<%= getuser.state %>">.
+        <input type="hidden" id="dob" value="<%= getuser.dob %>">
+        <input type="hidden" id="address" value="<%= getuser.address %>">
+    </nav>
+    <div id="displaymessage" style="width:100%;"></div>

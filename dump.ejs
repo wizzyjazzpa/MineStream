@@ -1,0 +1,232 @@
+<div class="container ">
+								
+    <!-- Search and Filter Section -->
+    <div class="d-flex justify-content-between mb-3">
+        <input type="text" class="form-control w-50" id="searchInput" placeholder="Search transactions...">
+        <select class="form-select w-25" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Success">Success</option>
+            <option value="Pending">Pending</option>
+            <option value="Failed">Failed</option>
+        </select>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-dark text-white table_hover">
+                <tr>
+                    
+                    
+                    <th>Amount</th>
+                    <th>Reciept</th>
+                    <th>Deposit Method</th>
+                    <th>Crypto Coin</th>
+                    <th>Crypto Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
+
+                </tr>
+            </thead>
+            <tbody id="transactionTable">
+                <% transaction_history.forEach(function(transaction, index){ %>
+                    <tr>
+                        
+                        <td  class="rttd">$<%= transaction.amount.toLocaleString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') %></td>
+                        <td class="rttd"><%= transaction.receipt %></td>
+                        <td class="rttd"><%= transaction.deposit_type %></td>
+                        <td class="rttd"><% if (transaction.crypto_coin=="No Crypto") { %>
+                              <p> <%=transaction.crypto_coin %></p>
+                        <% }else if(transaction.crypto_coin=="BTC"){ %>
+                             <i class="fa-brands fa-bitcoin text-warning"><span style="color:#333"><%= " "+transaction.crypto_coin.toLowerCase() %></span></i>
+                      <% } else if(transaction.crypto_coin=="ETH"){ %>
+                            <i class="fa-brands fa-bitcoin text-warning"><%= transaction.crypto_coin %></i>
+                      <% }else if(transaction.crypto_coin=="USDT"){ %>
+                        <i class="fa-brands fa-bitcoin text-warning"><%= transaction.crypto_coin %></i>
+                      <% }else if(transaction.crypto_coin=="DOGE"){%>
+                        <i class="fa-brands fa-bitcoin text-warning"><%= transaction.crypto_coin %></i>	
+                        <% }  %>
+                    </td>
+                        <td  class="rttd"><%= transaction.crypto_amount %></td>
+                        <td  class="rttd"><%= transaction.date %></td>
+                        <td  class="rttd">
+                             <% if (transaction.status=="pending") { %>
+
+                                   <span class="badge btn btn-outline-warning text-warning status_success"><%= transaction.status %></span>
+                                    <span class="badge btn btn-outline-secondary text-warning status_hover view_trans "  data-bs-toggle="modal" data-bs-target="#view_transaction" data-index="<%= index %>" ><i class="fa-solid fa-eye" ></i></span>
+                                    <input type="hidden" name="trnxID" class="trnxID_pending" value="<%= transaction.transactionId %>">
+
+                             <% } else if(transaction.status=="success"){ %>
+                                <span class="badge btn btn-outline-success text-success status_hover" ><%= transaction.status %></span>
+                                <span class="badge btn btn-outline-secondary text-success status_hover view_trans"  data-bs-toggle="modal" data-bs-target="#view_transaction" data-index="<%= index %>"><i class="fa-solid fa-eye"></i></span>
+                                <input type="hidden" name="trnxID" class="trnxID_pending" value="<%= transaction.transactionId %>">
+
+                             <% } %>			
+                        </td>
+                    </tr>
+                       
+                <% }) %>
+        </table>
+    </div>
+</div>
+
+<script>
+     $('#btc_form').on('submit',function(e){
+        e.preventDefault();
+        let amount = $('#btc_amount').val();
+        let btc_amount = $('#amount_in_btc').val();
+        let deposit_type = $('#deposit_type').val();
+        let deposit_crypto_coin = $('#deposit_coin').val();
+        userid =$('#userid').val();
+        //alert(amount+""+btc_amount+""+deposit_type+""+deposit_crypto_coin)
+        $.post('http://localhost:5000/api/deposit_crypto',
+            {
+            Amount:amount,
+            crypto_Amount:btc_amount,
+            Deposit_type:deposit_type,
+            Deposit_Crypto_Coin:deposit_crypto_coin,
+            Userid:userid
+        },
+        function(response){
+               if(response.status==200){
+                
+                  $('#successModal').modal('show');
+                  $('#BtcModal').modal('hide');
+               }
+        })
+    })
+
+
+
+    if(getdetails.deposit_type=="Deposit"){
+        
+        const get_data_in_account= await account_model.find({userid:userid});
+        const deposite_balance = parseFloat(get_data_in_account.Deposite_Balance)
+        const final_balance = Amount+deposite_balance;
+         const updateDeposite_Balance = await account_model.updateOne({userid:userid},{Deposit_Balance:final_balance})
+         if(updateDeposite_Balance){
+             await transaction_history_model.updateOne({userid:userid,transactionId:get_trnx_id},{status:status})
+             res.json({success:"Balance has been updated ",status:200})
+         }
+
+    }
+
+    changestatus()
+                   if(changestatus){
+                        await account_model.updateOne({userid:userid},{Btc_Amount:new_btc,Deposit_Balance:new_balance})
+                       return  res.json({success:"success", status:200});
+                   }else{
+                       return  res.json({error:"payment could not be approved"});
+                   }
+
+                   changestatus()
+                  if(changestatus){
+                       await account_model.updateOne({userid:userid},{Btc_Amount:new_btc,Deposit_Balance:new_balance})
+                      return  res.json({success:"success", status:200});
+                  }else{
+                      return  res.json({error:"payment could not be approved"});
+                  }
+
+
+
+
+                  changestatus()
+                  if(changestatus){
+                       await account_model.updateOne({userid:userid},{Ethereum_Amount:new_eth.toLocaleString('en-Us',{minimumFractionDigits:2}),Deposit_Balance:final_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                      return  res.json({success:"success", status:200});
+                  }else{
+                      return  res.json({error:"payment could not be approved"});
+                  }
+
+
+                  const check= sendmail(process.env.EMAIL,email,subject,quick_text);
+                    if(check){
+                        //const create_account_balance =await account_model.create(us)
+                        res.status(200).json({message:"email has been sent "+email,status:200})
+                       
+                    }else{
+                      res.status(400).json({error:"could not send email"});
+                    }
+
+
+
+                    $.post('http://localhost:5000/api/admin_login',
+            {
+                  Username:username,
+                  Password:password 
+          },
+          function(data){
+                if(data.status==200){
+                    $('#msg').html(`<p class='alert alert-success' style'text-align:center'>${data.message}</p>`);
+                }else{
+                    $('#msg').html(`<p class='alert alert-danger' style'text-align:center'>${data.error}</p>`);
+                }
+          });
+
+
+
+
+          $.ajax({
+                 url:`http://localhost:5000/user-details/${id}`,
+                 method: 'GET',
+                 success:function(data){
+                   
+                 }
+            })
+
+
+
+            $.post('http://localhost:5000//api/update_user_info',
+        {
+             Userid:userid,
+             phoneNumber:phoneNumber,
+             Country:country,
+             State:state,
+             DOB:dob,
+             Address:address
+       },
+    function(data){
+      if(data.status==200){
+          $('#update_msg').html("<p class='alert alert-success'>Profile has been Updated</p>")
+          $('#profile_btn').prop('disabled', true);
+      }else{
+        $('#update_msg').html("<p class='alert alert-danger'>An Error Just Occured</p>")
+      }
+    })
+
+
+
+
+    function get_code_value(userid,code,url){
+        let userid = $(userid).val();
+        let code = $(code).val()
+        let Url = url
+        $.ajax({
+            url : Url,
+            method:"POST",
+            data:{
+                 Code:code,
+                 userid:userid
+            },
+            success:function(result){
+                $('#msg').html(`<p class='alert alert-success'>${result.success}</p>`);
+               $('#msg').fadeOut(2000);
+            },
+            error:function(){
+                $('#msg').html(`<p class='alert alert-success'>ERROR</p>`);
+                $('#msg').fadeOut(2000);
+            }
+        })
+    }
+
+    $('#work').on('submit',function(event){
+        event.preventDefault();
+        alert("worked");
+        get_code_value('#userid','#work-code','/api/work_code'); 
+    })
+   $("#NIN").on('submit',function(e){
+       e.preventDefault();
+       get_code_value('#userid','#text-Nin','/api/nin_code'); 
+   })
+</script>
+
