@@ -10,7 +10,7 @@ const axios = require('axios');
 exports.homepage = async(req, res) =>{
     req.session.user = "Helo";
     const locals ={
-        title: "CryptoMine-homepage",
+        title: "MineStream-homepage",
         description :" bitcoin CryptoMine investment website"
     }
 
