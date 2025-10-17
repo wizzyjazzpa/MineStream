@@ -365,9 +365,30 @@ exports.kyc = async(req,res)=>{
 // 
      
 }
+ exports.admin_transactions = async(req,res)=>{
+              const id = req.admin.id;
+        const local ={
+            tittle:"Admin Transactions"
+    }
+    try{
+    const getAdmin = await admin_model.findOne({_id:id});
+    if(getAdmin){
+        res.render('admin/transactions',
+            {
+                local,
+                getAdmin,
+               
+            });
+    }else{
+            res.status(400).json({error:"Could not find user"})
+    }
 
+    }catch(err){
+        res.status(400).json({error:err.message});
+}
+ }
 exports.admin_logout = async(req,res)=>{
     res.clearCookie("jwt_admin_token");
-    res.redirect('/admin-login');
+    res.redirect('/admin_login');
 }
 

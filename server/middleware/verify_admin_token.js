@@ -6,11 +6,11 @@ const jwt  = require("jsonwebtoken");
   const token = req.cookies.jwt_admin_token;
   
   if(!token){
-     return res.redirect("/admin-login");
+     return res.redirect("/admin_login");
   }else{
        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
           if(err){
-              return res.redirect("/admin-login");
+              return res.redirect("/admin_login");
           }
           else{
                

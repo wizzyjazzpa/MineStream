@@ -37,4 +37,5 @@ router.get('/admin-dashboard',veryify_admin_token,control_pages.AdminDashboard);
 router.get('/users',verify_admin_token,control_pages.AllUsers);
 router.get('/user-details',verify_admin_token,control_pages.getUserDetails)
 router.get('/admin-kyc',verify_admin_token,control_pages.adminkyc)
+router.get('/admin_transactions',verify_admin_token,control_pages.admin_transactions);
 module.exports = router;
