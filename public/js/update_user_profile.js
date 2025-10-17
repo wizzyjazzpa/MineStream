@@ -1,37 +1,50 @@
-$(document).ready(function(){
-  /*  if($('#phone_number').val()!="" && $('#country').val()!="" ){
-        $('#profile_btn').prop('disabled', true);
-    }else{
-        $('#profile_btn').prop('disabled', false);
-    }*/
-$('#update_user_info').on('submit',function(e){
-    e.preventDefault();
-     let userid = $('#userid').val();
-     let phoneNumber = $('#phone_number').val().trim();
-     let country = $('#country').val().trim();
-     let state = $('#state').val().trim();
-     let  date = $('#date').val().trim();
-     let month = $('#month').val().trim();
-     let year = $('#year').val().trim();
-     let dob = date+"/"+month+"/"+year;
-     let address= $('#address').val().trim();
-    $.post('https://btfd-io.up.railway.app/api/update_user_info',
-        {
-             Userid:userid,
-             phoneNumber:phoneNumber,
-             Country:country,
-             State:state,
-             DOB:dob,
-             Address:address
-       },
-    function(data){
-      if(data.status==200){
-          $('#update_msg').html("<p class='alert alert-success'>Profile has been Updated</p>")
-          $('#profile_btn').prop('disabled', true);
-      }else{
-        $('#update_msg').html("<p class='alert alert-danger'>An Error Just Occured</p>")
-      }
-    })
-})
+function updateUserInfo() {
+    return {
+      userid: '',
+      phoneNumber: '',
+      country: '',
+      state: '',
+      date: '',
+      month: '',
+      year: '',
+      address: '',
+      message: '',
+      isSubmitting: false,
 
-})
+      async submitForm() {
+        this.isSubmitting = true;
+        this.message = '';
+
+        const dob = `${this.date}/${this.month}/${this.year}`;
+        const payload = {
+          Userid: this.userid,
+          phoneNumber: this.phoneNumber,
+          Country: this.country,
+          State: this.state,
+          DOB: dob,
+          Address: this.address
+        };
+         alert(this.userid);
+        try {
+          const response = await fetch("/api/update_user_info", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (data.status === 200) {
+            this.message = "<p class='alert alert-success'>Profile has been Updated</p>";
+          } else {
+            this.message = "<p class='alert alert-danger'>An Error Just Occured</p>";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          this.message = "<p class='alert alert-danger' style='text-align:center'>Code based Error</p>";
+        } finally {
+          this.isSubmitting = false;
+        }
+      }
+    };
+  }

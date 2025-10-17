@@ -9,7 +9,7 @@
 						<h1 class="h3 d-inline align-middle">Profile</h1>
 					</div>
 					<div class="row">
-						<div id="update_msg"></div>
+						<div id="update_msg" x-html="message"></div>
 						<div class="col-md-4 col-xl-3">
 							<div class="card mb-3">
 								<div class="card-header">
@@ -70,17 +70,17 @@
 						</div>
 
 						<div class="col-md-8 col-xl-9">
-							<div class="card">
+							<div class="card" x-data="updateUserInfo()">
 								<div class="card-header">
 
 									<h5 class="card-title mb-0">Update Profile</h5>
 								</div>
-								<form id="update_user_info">
+								<form @submit.prevent="submitForm" id="update_user_info" >
 								<div class="card-body h-100">
-
+										
 									<div class="d-flex align-items-start">
 										<div class="flex-grow-1">
-											
+											 
 											<input type="text" class="form-control" value="<%= getuser.name %>" readonly>
 										</div>
 									</div>
@@ -93,10 +93,21 @@
 									</div>
 
 									<hr />
+
 									<div class="d-flex align-items-start">
 										<div class="flex-grow-1">
+											<input type="hidden" x-model="userid" x-init="userid = $el.value" class="form-control" value="<%= getuser._id %>" readonly>
+										</div>
+									</div>
+
+									
+
+                              
+									<div class="d-flex align-items-start">
+										
+										<div class="flex-grow-1">
 										  <% if (getuser.phone_number=="null") { %>
-											<input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="Phone Number" required>
+											<input type="text" class="form-control" x-model="phoneNumber"  id="phone_number" name="phone_number" placeholder="Phone Number" required>
 										  <% }else{ %>
 											<input type="text" class="form-control" id="phone_number" name="phone_number" value="<%= getuser.phone_number %>" required>
 											<% } %>
@@ -108,7 +119,7 @@
 										<div class="flex-grow-1">
 											<div class="row">
 												<div class="col-md-6">
-													<select name="country" id="country" class="form-select" style="margin-bottom: 2%;">
+													<select name="country" x-model="country" id="country" class="form-select" style="margin-bottom: 2%;">
 														<% if (getuser.country== "null") { %>
 
 															<option value="" >Select a country</option>
@@ -320,7 +331,7 @@
 
 												<div class="col-md-6">
 													 <% if (getuser.state=='null') { %>
-														<input type="text" class="form-control" id="state" name="state" placeholder="State of Origin" required>
+														<input type="text" x-model="state" class="form-control" id="state" name="state" placeholder="State of Origin" required>
 													 <% }else { %>
 														<input type="text" class="form-control" id="state" name="state" value="<%= getuser.state %>" readonly>
 														<% } %>
@@ -338,17 +349,17 @@
 											
 												<div class="col-md-4">
 												 
-													<input type="text" name="date" id="date" class="form-control" placeholder="Date" >
+													<input type="text" x-model="date" name="date" id="date" class="form-control" placeholder="Date" >
 	 
 												 </div>
 												 <div class="col-md-4">
 													 
-													 <input type="text" name="month" id="month" class="form-control" placeholder="Month" >
+													 <input type="text" x-model="month" name="month" id="month" class="form-control" placeholder="Month" >
 	  
 												  </div>
 												  <div class="col-md-4">
 													 
-													 <input type="text" name="year" id="year" class="form-control" placeholder="Year" >
+													 <input type="text" x-model="year" name="year" id="year" class="form-control" placeholder="Year" >
 	  
 												  </div>
 										</div>
@@ -362,9 +373,9 @@
 									<hr />
 									<div class="d-flex align-items-start">
 										<div class="flex-grow-1 getdata"  data-address="">
-											<% if (getuser.address=="null" || address == "") { %>
+											<% if (getuser.address=="null" || getuser.address == "") { %>
 
-												<textarea name="address" id="address" class="form-control">Clear this text and enter address</textarea>
+												<textarea  x-model="address" name="address" id="address" class="form-control">Clear this text and enter address</textarea>
 											 
 											<% }else{ %>
 												<textarea name="address" id="address" class="form-control" readonly><%= getuser.address %></textarea>
@@ -374,7 +385,7 @@
 
 									<hr />
 									<div class="d-grid">
-										<button type="submit" id="profile_btn"  class="btn btn-primary">Update Details</button>
+										<button type="submit" id="profile_btn"  class="btn btn-primary" :disabled="isSubmitting">Update Details</button>
 									</div>
 								</div>
 							</form>
@@ -383,5 +394,12 @@
 					</div>
 
 				</div>
+				<script>
+					$(document).ready(function(){
+						let getuserid = $('#userid').val();
+						 $('#newuserid').val(getuserid);
+
+					})
+				</script>
 			</main>
 			<%- include('template/footer') %>

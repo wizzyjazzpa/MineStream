@@ -507,7 +507,7 @@ exports.post_signup = async(req, res) =>{
  }
 
  exports.update_user_info = async(req,res)=>{
-        
+        console.log(req.body);
     const userid = req.body.Userid;
     const phoneNumber = req.body.phoneNumber;
     const country = req.body.Country;
