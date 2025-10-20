@@ -62,8 +62,9 @@
                            Amount:amount   
                    },
                    success:function(data){
+                     $('#modal_msg').html(` <p class="alert alert-success">Success: account updated</p> `);
                     $('#depositModal').modal('hide');
-                    $('#successModal').modal('show');
+                   // $('#successModal').modal('show');
                    }
             })
     })

@@ -1,7 +1,7 @@
 const Users = require('../models/signup_model');
 const bcrypt = require('bcryptjs');
 const transporter = require('../middleware/sendmail');
-const SendEmail = require('../middleware/send_mailjet');
+const SendingMail = require('../middleware/send_mailjet');
 const verify_model = require('../models/verificationCode_model');
  const jwt = require('jsonwebtoken');
 const account_model = require('../models/account_model');
@@ -33,30 +33,12 @@ const sendmail = async function(from,to,subject,text){
      }
 }
 
- async function SendingMail(process_email,process_name,email,name,subject,quick_text){
-     const mailResult = await SendEmail({
-                    fromEmail: process_email, // must be verified in Mailjet
-                    fromName: process_name,
-                    toEmail:email,
-                    toName: name || "",
-                    subject:subject,
-                    text: quick_text,
-                    html: `<p>${quick_text}</p>`,
-         });  
-
-         if(mailResult.success){
-              console.log("mail send")
-         }else{
-             console.log("could not send Email")
-         }
-          
- }
-
+ 
 const Code = Math.floor(1000 + Math.random() * 9000);
  const verify_code = Code.toString();
 exports.post_signup = async(req, res) =>{
      const subject = "Verify Email";
-     quick_text = " Hello "+req.body.Name+"\n Welcome to MineStream Investment, \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes"
+     const  quick_text = " Hello "+req.body.Name+"\n Welcome to MineStream Investment, \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes"
    if(req.body.Password == req.body.con_password){
 
         const name = req.body.Name;
@@ -79,17 +61,8 @@ exports.post_signup = async(req, res) =>{
 
                 const sendcode = await verify_model.create({code:verify_code,email:email});
                 if(sendcode){
-                    const mailResult = await SendEmail({
-                    fromEmail: process.env.EMAIL, // must be verified in Mailjet
-                    fromName: process.env.SENDER_NAME,
-                    toEmail:email,
-                    toName: name || "",
-                    subject:subject,
-                    text: quick_text,
-                    html: `<p>${quick_text}</p>`,
-                    });        
-                   
-                    if(mailResult.success){
+                    const sendmail= SendingMail(process.env.EMAIL,process.env.SENDER_NAME,email,name,subject,quick_text);
+                    if(sendmail){
                         //const create_account_balance =await account_model.create(us)
                         res.status(200).json({message:"email has been sent "+email,status:200})
                        

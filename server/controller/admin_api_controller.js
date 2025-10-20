@@ -1,24 +1,12 @@
 const Admin_model = require('../models/Admin_model');
 const Account_model = require('../models/account_model');
+const User = require('../models/signup_model');
  const jwt = require('jsonwebtoken');
- const transporter = require('../middleware/sendmail');
-  
- const sendmail = async function(from,to,subject,text){
-     const mailOptions ={
-         from: from,
-         to,
-         subject,
-         text
+ const SendingMail = require('../middleware/send_mailjet');
+require('dotenv');
+
  
-     }
-      try{
- 
-          await transporter.sendMail(mailOptions);
-         
-      }catch(error){
-         console.error(error)
-      }
- }
+
  exports.registerAdmin = async(req,res)=>{
       const username = req.body.Username;
       const passsword = req.body.Password;
@@ -55,8 +43,10 @@ const Account_model = require('../models/account_model');
      const userid = req.body.UserId;
      const email = req.body.Email
      const subject = "Deposit";
-     
+      
      const Amount = parseFloat(req.body.Amount);
+     const getname = await User.findOne({_id:userid},{name:1})
+     console.log(email)
       try{
          const quick_text = `$${Amount.toLocaleString('en-Us',{minimumFractionDigits:2})} has been deposited to your Account`
          const   get_deposit_balance = await Account_model.findOne({userid:userid},{Deposit_Balance:1});
@@ -64,7 +54,7 @@ const Account_model = require('../models/account_model');
          const final_balance = initial_amount+Amount;
          const update_result= await Account_model.updateOne({userid:userid},{Deposit_Balance:final_balance});
          if(update_result){
-            sendmail(process.env.EMAIL,email,subject,quick_text);
+            SendingMail(process.env.EMAIL,process.env.SENDER_NAME,email,getname.name,subject,quick_text);
              res.json({message:"Account has been updated"});
          }else{
               res.json({error:"Could not update account"})

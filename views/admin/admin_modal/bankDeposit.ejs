@@ -10,6 +10,7 @@ aria-hidden="true">
         </div>
         <div class="modal-body">
             <form id="deposit_money">
+                <div id="modal_msg"></div>
                 <div class="row">
                     <div class="col-md-12">
                         <input type="hidden"  id="userid" value="<%= user_detail[0]._id %>">
@@ -23,7 +24,7 @@ aria-hidden="true">
 
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-secondary closeModalBtn"
                 data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Add Money</button>
         </div>
@@ -31,3 +32,11 @@ aria-hidden="true">
     </div>
 </div>
 </div>
+<script>
+    $(document).on('click', '.closeModalBtn', function() {
+  
+    $('#depositeModal').modal('hide');
+   // $(this).show(); // reset display for next open
+ 
+});
+</script>

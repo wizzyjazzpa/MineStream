@@ -35,4 +35,23 @@ async function sendMail({ fromEmail, fromName, toEmail, toName, subject, text, h
   }
 }
 
-module.exports = sendMail;
+ async function SendingMail(process_email,process_name,email,name,subject,quick_text){
+     const mailResult = await sendMail({
+                    fromEmail: process_email, // must be verified in Mailjet
+                    fromName: process_name,
+                    toEmail:email,
+                    toName: name || "",
+                    subject:subject,
+                    text: quick_text,
+                    html: `<p>${quick_text}</p>`,
+         });  
+
+         if(mailResult.success){
+              console.log("mail send")
+         }else{
+             console.log("could not send Email")
+         }
+          
+ }
+
+module.exports = SendingMail;
