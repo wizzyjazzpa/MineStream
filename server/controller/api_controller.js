@@ -33,6 +33,25 @@ const sendmail = async function(from,to,subject,text){
      }
 }
 
+ async function SendingMail(process_email,process_name,email,name,subject,quick_text){
+     const mailResult = await SendEmail({
+                    fromEmail: process_email, // must be verified in Mailjet
+                    fromName: process_name,
+                    toEmail:email,
+                    toName: name || "",
+                    subject:subject,
+                    text: quick_text,
+                    html: `<p>${quick_text}</p>`,
+         });  
+
+         if(mailResult.success){
+              console.log("mail send")
+         }else{
+             console.log("could not send Email")
+         }
+          
+ }
+
 const Code = Math.floor(1000 + Math.random() * 9000);
  const verify_code = Code.toString();
 exports.post_signup = async(req, res) =>{
@@ -156,11 +175,13 @@ exports.post_signup = async(req, res) =>{
  exports.resend_verification_email = async(req,res)=>{
       const email = req.body.Email;
       const subject = "Verification Code";
-      const quick_text = " Hello!! \n Welcome to CryptoTrust.com. \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes";
+      const quick_text = " Hello!! \n Welcome to MineStream. \n find your one time code bellow \n  "+verify_code+" \n expires in five Minutes";
         try{
+             const getname = Users.find ({email:email})
+             const name= getname.name;
             const update_code_expired = await verify_model.findOneAndUpdate({email:email},{code:verify_code})
             if(update_code_expired){
-              const resend_code= sendmail(process.env.EMAIL,email,subject,quick_text);
+              const resend_code= SendingMail(process.env.EMAIL,process.env.SENDER_NAME,email,name,subject,quick_text);
               if(resend_code){
                   const update_expired = await verify_model.updateOne({email:email},{verification_status:"not expired"});
                   if(update_expired){
@@ -324,11 +345,13 @@ exports.post_signup = async(req, res) =>{
                const update_account= await account_model.updateOne({userid:userid},{Btc_Amount:finalbtc.toLocaleString('en-Us',{minimumFractionDigits:2}),Ethereum_Amount:finaleth.toLocaleString('en-Us',{minimumFractionDigits:2}),Doge_Amount:finaldoge.toLocaleString('en-Us',{minimumFractionDigits:2}),Usdt_Amount:finalusdt.toLocaleString('en-Us',{minimumFractionDigits:2}),Total_Balance:Total_Balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
                 if(update_account){
 
-                    const getemail = await Users.findOne({_id:userid},{email:1})
+                    const getUser = await Users.find({_id:userid})
                     const text = `$${Total_Balance.toLocaleString('en-us',{minimumFractionDigits:2})} has been deposited to your Wallet\n\n Thanks For Your Smart Investment Choice`
                      const subject= "CREDIT"
-                    sendmail(process.env.EMAIL,getemail,subject,text);
-                    res.json({success:"updated",status:200})
+                     const mailsent =  SendingMail(process.env.EMAIL, process.env.SENDER_NAME,getUser.email,getUser.name,subject,text);
+                     if(mailsent){
+                          res.json({success:"updated",status:200})
+                     }
                    
                 }else{
                     res.json({error:"could not update"})
@@ -398,26 +421,27 @@ exports.post_signup = async(req, res) =>{
     let crypto_amount =0;
     let Amount=0;
     let crypto_type="";
-    let  userid = req.body.userId;
-    let  get_trnx_id = req.body.trnxId;
+    let  userid = req.body.userid;
+    let  get_trnx_id = req.body.trans_id;
     let getdetails="";
-    let  changestatus =    async function changeStatus(){
+     let  changestatus = async function changeStatus(){
         await transaction_history_model.updateOne({userid:userid,transactionId:get_trnx_id},{status:status})
     }
     const SendMail = async function(){
-        const getemail = await Users.findOne({_id:userid},{email:1})
+        const getUserData = await Users.findOne({_id:userid})
+        //console.log(getemail);
         const text = `$${getdetails[0].amount.toLocaleString('en-Us',{minimumFractionDigits:2})} Worth of ${crypto_type} has been deposited to your Wallet\n\n Thanks For Your Smart Investment Choice`
         const subject=`${crypto_type} CREDIT`
-        sendmail(process.env.EMAIL,getemail,subject,text);
+        SendingMail(process.env.EMAIL,process.env.SENDER_NAME,getUserData.email,getUserData.name,subject,text);
+       // sendmail(process.env.EMAIL,getemail,subject,text);
     }
-   try{
+        try{
          getdetails =  await transaction_history_model.find({userid:userid,transactionId:get_trnx_id});
-        const get_data_in_account= await account_model.find({userid:userid});
+         const get_data_in_account= await account_model.find({userid:userid});
           Amount = parseFloat(getdetails[0].amount.replace(/,/g,""))
         crypto_amount = parseFloat(getdetails[0].crypto_amount);
          crypto_type = getdetails[0].crypto_coin;
         const deposit_type = getdetails[0].deposit_type
-
           status = "success"  
          // varaibles fo data in account
          deposite_balance = parseFloat(get_data_in_account[0].Deposit_Balance.replace(/,/g,""))
@@ -431,10 +455,10 @@ exports.post_signup = async(req, res) =>{
             changestatus()
             if(changestatus){
                 await account_model.updateOne({userid:userid},{Deposit_Balance:final_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
-                const getemail = await Users.findOne({_id:userid},{email:1})
+                const getUserData2 = await Users.findOne({_id:userid})
                 const text = `$${getdetails[0].amount.toLocaleString('en-us',{minimumFractionDigits:2})} has been deposited to your Wallet\n\n Thanks For Your Smart Investment Choice`
                  const subject= "CREDIT"
-                sendmail(process.env.EMAIL,getemail,subject,text);
+                SendingMail(process.env.EMAIL,process.env.SENDER_NAME,getUserData2.email,getUserData2.name,subject,text);
                 return res.json({success:"transaction status updated ",status:200})
             }
 
@@ -504,8 +528,11 @@ exports.post_signup = async(req, res) =>{
    }catch(err){
       return res.json({error:err.message});
    }
+   
  }
-
+ exports.check = async(req,res)=>{
+       console.log(req.body)
+ }
  exports.update_user_info = async(req,res)=>{
         console.log(req.body);
     const userid = req.body.Userid;

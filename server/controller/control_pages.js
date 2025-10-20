@@ -373,10 +373,12 @@ exports.kyc = async(req,res)=>{
     try{
     const getAdmin = await admin_model.findOne({_id:id});
     if(getAdmin){
+          const transac_history = await transaction_history_model.find();
         res.render('admin/transactions',
             {
                 local,
                 getAdmin,
+                transac_history
                
             });
     }else{

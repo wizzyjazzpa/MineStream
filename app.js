@@ -25,13 +25,11 @@ app.use(
     })
 );
 app.use(cookieParser());
-// flash Messages 
-app.use(flash());
+
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 // static files 
 app.use(express.static('public'));

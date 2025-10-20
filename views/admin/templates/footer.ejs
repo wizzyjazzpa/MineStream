@@ -1,6 +1,7 @@
 
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
 <script type="text/javascript" src="admin-assets/scripts/main.d810cf0ae7f39f28f336.js"></script>
+<script src="admin-assets/scripts/approve_payment.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -25,7 +26,7 @@
             $.ajax({
                
                   //  url:"http://localhost:5000/api/update_account",
-                  url:"https://btfd-io.up.railway.app/update_account",
+                  url:"/api/update_account",
                   method:"POST",
                   data:{
                       UserId: userid,
@@ -53,7 +54,7 @@
             const userid =$('#userid').val();
             const email = $('#email').val();
             $.ajax({
-                  url:"https://btfd-io.up.railway.app/api/admin_add_money",
+                  url:"/api/admin_add_money",
                    method:"POST",
                    data:{
                            UserId:userid,
