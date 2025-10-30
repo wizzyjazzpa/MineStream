@@ -53,13 +53,15 @@
             let amount = $('#amount').val();
             const userid =$('#userid').val();
             const email = $('#email').val();
+            let deposit_reason = $('#reason_deposit').val();
             $.ajax({
                   url:"/api/admin_add_money",
                    method:"POST",
                    data:{
                            UserId:userid,
                            Email:email,
-                           Amount:amount   
+                           Amount:amount ,
+                           Deposit_reason:deposit_reason  
                    },
                    success:function(data){
                      $('#modal_msg').html(` <p class="alert alert-success">Success: account updated</p> `);

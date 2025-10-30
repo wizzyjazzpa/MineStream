@@ -42,13 +42,14 @@ require('dotenv');
  exports.add_money = async(req,res)=>{
      const userid = req.body.UserId;
      const email = req.body.Email
+     const  deposit_reason = req.body.Deposit_reason
      const subject = "Deposit";
       
      const Amount = parseFloat(req.body.Amount);
      const getname = await User.findOne({_id:userid},{name:1})
      console.log(email)
       try{
-         const quick_text = `$${Amount.toLocaleString('en-Us',{minimumFractionDigits:2})} has been deposited to your Account`
+         const quick_text = ` A ${deposit_reason} of $${Amount.toLocaleString('en-Us',{minimumFractionDigits:2})} has been deposited to your Account`
          const   get_deposit_balance = await Account_model.findOne({userid:userid},{Deposit_Balance:1});
          const  initial_amount = parseFloat(get_deposit_balance.Deposit_Balance.replace(/,/g,""));
          const final_balance = initial_amount+Amount;

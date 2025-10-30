@@ -287,4 +287,216 @@
  
      
  }
+
+
+
+ $.post('/api/update_user_info',
+        {
+             Userid:userid,
+             phoneNumber:phoneNumber,
+             Country:country,
+             State:state,
+             DOB:dob,
+             Address:address
+       },
+    function(data){
+      if(data.status==200){
+          $('#update_msg').html("<p class='alert alert-success'>Profile has been Updated</p>")
+          $('#profile_btn').prop('disabled', true);
+      }else{
+        $('#update_msg').html("<p class='alert alert-danger'>An Error Just Occured</p>")
+      }
+    })
+
+
+    
+$(document).ready(function(){
+  /*  if($('#phone_number').val()!="" && $('#country').val()!="" ){
+        $('#profile_btn').prop('disabled', true);
+    }else{
+        $('#profile_btn').prop('disabled', false);
+    }*/
+$('#update_user_info').on('submit',function(e){
+    e.preventDefault();
+     let userid = $('#userid').val();
+     let phoneNumber = $('#phone_number').val();
+     let country = $('#country').val();
+     let state = $('#state').val();
+     let  date = $('#date').val();
+     let month = $('#month').val();
+     let year = $('#year').val();
+     let dob = date+"/"+month+"/"+year;
+     let address= $('#address').val();
+     $.ajax({
+                url:"/api/update_user_info",
+                type:"post",
+                contentType:"application/json",
+                data:JSON.stringify({
+                       Userid:userid,
+                        phoneNumber,
+                       Country:country,
+                       State:state,
+                         DOB:dob,
+                        Address:address
+                }),
+                success:function(data){
+                        if(data.status==200){
+                        $('#update_msg').html("<p class='alert alert-success'>Profile has been Updated</p>")
+                        $('#profile_btn').prop('disabled', true);
+                    }else{
+                      $('#update_msg').html("<p class='alert alert-danger'>An Error Just Occured</p>")
+                    }
+                },
+                  error: function(xhr) {
+                      $('#update_msg').html("<p class='alert alert-danger' style'text-align:center'>Code based Error</p>");
+                console.error('Login failed:', xhr.status, xhr.responseText);
+        }
+     })
+})
+
+
+
+})
 </script>
+
+
+<table  class="table table-hover table-striped table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Amount</th>
+                                                <th>Dep Type</th>
+                                                <th>Crypto Amount</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                                         <% transac_history.forEach( function (trans) { %>
+
+                                            <tr>
+                                                <td id="transactionID" data-id="<%= trans.transactionId %>"><%= trans.transactionId %></td>
+                                                <td id="Amount" data-amount="<%= trans.amount %>"><%= trans.amount %></td>
+                                                 <td ><%= trans.deposit_type %></td>
+                                                <td id="crypto_Amount" data-crypto_amount="<%= trans.crypto_Amount %>" data-crypto_coin="<%= trans.crypto_coin %>" ><%=  trans.crypto_amount+" "+`(${trans.crypto_coin})` %></td>
+                                                <td><%= trans.date %></td>
+                                                <td> <% if (trans.status=="pending") { %>
+                                                      <button type="button" class="btn btn-outline-warning btn_approve " >Approve</button>
+                                                <% }else{%>
+                                                         <span class="text-success"><%= trans.status %></span>
+                                               <% } %></td>
+                                                
+                                            </tr>
+                                          
+                                         <% }) %>
+                                        </tbody>
+                                    </table>
+
+
+
+
+
+     let  changestatus =    async function changeStatus(){
+        await transaction_history_model.updateOne({userid:userid,transactionId:get_trnx_id},{status:status})
+    }
+    const SendMail = async function(){
+        const getemail = await Users.findOne({_id:userid},{email:1})
+        const text = `$${getdetails[0].amount.toLocaleString('en-Us',{minimumFractionDigits:2})} Worth of ${crypto_type} has been deposited to your Wallet\n\n Thanks For Your Smart Investment Choice`
+        const subject=`${crypto_type} CREDIT`
+        sendmail(process.env.EMAIL,getemail,subject,text);
+    }
+   try{
+         getdetails =  await transaction_history_model.find({userid:userid,transactionId:get_trnx_id});
+        const get_data_in_account= await account_model.find({userid:userid});
+          Amount = parseFloat(getdetails[0].amount.replace(/,/g,""))
+        crypto_amount = parseFloat(getdetails[0].crypto_amount);
+         crypto_type = getdetails[0].crypto_coin;
+        const deposit_type = getdetails[0].deposit_type
+
+          status = "success"  
+         // varaibles fo data in account
+         deposite_balance = parseFloat(get_data_in_account[0].Deposit_Balance.replace(/,/g,""))
+         Btc_Amount = parseFloat(get_data_in_account[0].Btc_Amount.replace(/,/g,""))
+         Ethereum_Amount = parseFloat(get_data_in_account[0].Ethereum_Amount.replace(/,/g,""));
+         Usdt_Amount = parseFloat(get_data_in_account[0].Usdt_Amount.replace(/,/g,""));
+         Doge_Amount = parseFloat(get_data_in_account[0].Doge_Amount.replace(/,/g,""));
+        // const crypto_balance = parseFloat(get_data_in_account.crypto_amount)
+         const final_balance = Amount+deposite_balance;
+         if(deposit_type == "Deposit"){
+            changestatus()
+            if(changestatus){
+                await account_model.updateOne({userid:userid},{Deposit_Balance:final_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                const getemail = await Users.findOne({_id:userid},{email:1})
+                const text = `$${getdetails[0].amount.toLocaleString('en-us',{minimumFractionDigits:2})} has been deposited to your Wallet\n\n Thanks For Your Smart Investment Choice`
+                 const subject= "CREDIT"
+                sendmail(process.env.EMAIL,getemail,subject,text);
+                return res.json({success:"transaction status updated ",status:200})
+            }
+
+         }else if(deposit_type=="Crypto"){
+            switch (crypto_type){
+                case "BTC":
+                    const new_btc = Btc_Amount+Amount
+                    const new_balance= deposite_balance+Amount;
+                     changestatus()
+                  if(changestatus){
+                       await account_model.updateOne({userid:userid},{Btc_Amount:new_btc.toLocaleString('en-Us',{minimumFractionDigits:2}),Deposit_Balance:new_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                       SendMail();
+                      return  res.json({success:"success", status:200});
+                  }else{
+                      return  res.json({error:"payment could not be approved"});
+                  }
+                 
+                 
+                case "ETH":
+                    const new_eth = Ethereum_Amount+Amount
+                    const getnew_balance= deposite_balance+Amount;
+                    changestatus()
+                    if(changestatus){
+                         await account_model.updateOne({userid:userid},{Ethereum_Amount:new_eth.toLocaleString('en-Us',{minimumFractionDigits:2}),Deposit_Balance:getnew_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                         SendMail();
+                         return  res.json({success:"success", status:200});
+                    }else{
+                        return  res.json({error:"payment could not be approved"});
+                    }
+                   // return res.json({Ethereum_amount:Ethereum_Amount,Amount:Amount,Deposit_Balance:deposite_balance,final_balance:getnew_balance})
+
+                case "DOGE":
+                    const new_doge = Doge_Amount+Amount
+                    const getdoge_balance= deposite_balance+Amount;
+                    changestatus()
+                    if(changestatus){
+                         await account_model.updateOne({userid:userid},{Doge_Amount:new_doge.toLocaleString('en-Us',{minimumFractionDigits:2}),Deposit_Balance:getdoge_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                         SendMail();
+                         return  res.json({success:"success", status:200});
+                    }else{
+                        return  res.json({error:"payment could not be approved"});
+                    }
+                    
+                case "USDT":
+                    const new_usdt = Usdt_Amount+Amount
+                    const usdt_balance= deposite_balance+Amount;
+                    changestatus()
+                    if(changestatus){
+                         await account_model.updateOne({userid:userid},{Usdt_Amount:new_usdt.toLocaleString('en-Us',{minimumFractionDigits:2}),Deposit_Balance:usdt_balance.toLocaleString('en-Us',{minimumFractionDigits:2})})
+                         SendMail();
+                         return  res.json({success:"success", status:200});
+                    }else{
+                        return  res.json({error:"payment could not be approved"});
+                    }
+                default:
+                   return res.json({error:`none of the options are met for type ${crypto_type}`});
+            }
+           
+                 
+         }else{
+            return  res.json({error:"None of the Options are met"})
+         }
+
+   //  res.json({data_in_history:getdetails, data_in_account:get_data_in_account[0], final_balance:final_balance});
+   
+
+   }catch(err){
+      return res.json({error:err.message});
+   }
